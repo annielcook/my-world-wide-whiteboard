@@ -27,6 +27,9 @@ io.on('connection', function(socket) {
         //console.log("This is mouse: ", mouseLocation);
         socket.broadcast.emit("otherArtistMouse", start, end, strokeColor )
     });
+    socket.on("previousDrawings", function(arr){
+    	socket.broadcast.emit("the arr", arr)
+    })
 
 });
 
