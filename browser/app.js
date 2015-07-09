@@ -3,30 +3,28 @@ var arr = [];
 // This object describes the URL of the page we're on!
 var socket = io(window.location.href);
 
-socket.on('connect', function () {
-    console.log('I have made a persistent two-way connection to the server!'); 
-    arr.forEach(function(drawLine){
-		whiteboard.draw(drawLine.start, drawLine.end, drawLine.strokeColor)
-	})
-});
+socket.on('connect', function() {
+  console.log('I have made a persistent two-way connection to the server!');
 
-whiteboard.on('draw', function(start, end, strokeColor){
-	arr.push({ start: start, end: end, strokeColor: strokeColor })
-	socket.emit("mouseLocation", start, end, strokeColor);
-	socket.emit("previousDrawings", arr)
+  socket.on('drawHistory', function(arr) {
+    console.log("Draw 2: ", arr)
+    arr.forEach(function(line) {
+      whiteboard.draw(line.start, line.end, line.strokeColor)
+    })
+  })
+
+  socket.on('someoneElseDrew', function(start, end, strokeColor) {
+    whiteboard.draw(start, end, strokeColor)
+  })
+
+  socket.on('drawHistory', function(drawHistory) {
+    drawHistory.forEach(function(draw) {
+      whiteboard.draw(draw.start, draw.end, draw.color);
+    });
+  });
+
+  whiteboard.on('draw', function(start, end, strokeColor) {
+    socket.emit('drawing', start, end, strokeColor)
+  })
+
 })
-
-socket.on('otherArtistMouse', function(start, end, strokeColor){
-	arr.push({ start: start, end: end, strokeColor: strokeColor })
-	whiteboard.draw(start, end, strokeColor)
-})
-
-socket.on('the arr', function(array){
-	arr.concat(array);
-	arr.forEach(function(drawLine){
-		whiteboard.draw(drawLine.start, drawLine.end, drawLine.strokeColor)
-	})	
-})
-
-
-
